@@ -37,6 +37,8 @@ Usage: dhcpdiscover [-s serverip] [-r requestedip] [-m clientmac ] [-b bannedip]
    Interface to to use for listening (i.e. eth0)
  -v, --verbose
    Print extra information (command-line use only)
+ -p, --prometheus
+   Print extra information in prometheus format
  -h, --help
    Print detailed help screen
  -V, --version

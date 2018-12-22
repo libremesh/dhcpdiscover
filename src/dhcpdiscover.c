@@ -170,8 +170,8 @@ typedef struct dhcp_packet_struct{
         unsigned char chaddr [MAX_DHCP_CHADDR_LENGTH];      /* hardware address of this machine */
         char sname [MAX_DHCP_SNAME_LENGTH];    /* name of DHCP server */
         char file [MAX_DHCP_FILE_LENGTH];      /* boot file name (used for diskless booting?) */
-	char options[MAX_DHCP_OPTIONS_LENGTH];  /* options */
-        }dhcp_packet;
+	    char options[MAX_DHCP_OPTIONS_LENGTH]; /* options */
+            }dhcp_packet;
 
 
 typedef struct dhcp_offer_struct{
@@ -188,7 +188,6 @@ typedef struct requested_server_struct{
 	struct in_addr server_address;
 	struct requested_server_struct *next;
         }requested_server;
-
 
 #define BOOTREQUEST     1
 #define BOOTREPLY       2
@@ -247,6 +246,7 @@ int requested_responses=0;
 int request_specific_address=FALSE;
 int received_requested_address=FALSE;
 int verbose=0;
+int prometheus=0;
 struct in_addr requested_address;
 
 void print_revision(const char *progname,const char *revision)
@@ -313,7 +313,9 @@ int main(int argc, char **argv){
 	close_dhcp_socket(dhcp_socket);
 
 	/* determine state/plugin output to return */
-	result=get_results();
+    if(!prometheus) {
+        result=get_results();
+    }
 
 	/* free allocated memory */
 	free_dhcp_offer_list();
@@ -898,6 +900,13 @@ int add_dhcp_offer(struct in_addr source,dhcp_packet *offer_packet){
 		printf(" of IP address %s\n",inet_ntoa(new_offer->offered_address));
 	}
 
+    if (prometheus) {
+		printf("dhcpdiscover { server=\"%s\", address=\"%s\", dev=\"%s\" } 1\n",
+				inet_ntoa(new_offer->server_address),
+				inet_ntoa(new_offer->offered_address),
+				network_interface_name);
+    }
+
 	/* add new offer to head of list */
 	new_offer->next=dhcp_offer_list;
 	dhcp_offer_list=new_offer;
@@ -1064,6 +1073,7 @@ int call_getopt(int argc, char **argv){
 		{"mac",      	   required_argument,0,'m'},
 		{"bannedip",       required_argument,0,'b'},
 		{"verbose",        no_argument,      0,'v'},
+		{"prometheus",     no_argument,      0,'p'},
 		{"version",        no_argument,      0,'V'},
 		{"help",           no_argument,      0,'h'},
 		{0,0,0,0}
@@ -1072,9 +1082,9 @@ int call_getopt(int argc, char **argv){
 
 	while(1){
 #ifdef HAVE_GETOPT_H
-		c=getopt_long(argc,argv,"+hVvt:s:r:t:i:m:b:",long_options,&option_index);
+		c=getopt_long(argc,argv,"+hVvpt:s:r:t:i:m:b:",long_options,&option_index);
 #else
-		c=getopt(argc,argv,"+?hVvt:s:r:t:i:m:b:");
+		c=getopt(argc,argv,"+?hVvpt:s:r:t:i:m:b:");
 #endif
 
 		i++;
@@ -1172,6 +1182,10 @@ int call_getopt(int argc, char **argv){
 
 		case 'v': /* verbose */
 			verbose=1;
+			break;
+
+		case 'p': /* prometheus */
+			prometheus=1;
 			break;
 
 		default: /* help */
@@ -1348,6 +1362,8 @@ void print_help(void){
    Interface to to use for listening (i.e. eth0)\n\
  -v, --verbose\n\
    Print extra information (command-line use only)\n\
+ -p, --prometheus\n\
+   Print extra information in prometheus format\n\
  -h, --help\n\
    Print detailed help screen\n\
  -V, --version\n\
@@ -1361,7 +1377,7 @@ void print_usage(void)
 {
 	printf("\
 Usage: %s [-s serverip] [-r requestedip] [-m clientmac ] [-b bannedip] [-t timeout] [-i interface]\n\
-                  [-v]",progname);
+                  [-v] [-p]",progname);
 }
 
 
