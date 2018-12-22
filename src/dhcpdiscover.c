@@ -227,7 +227,7 @@ struct in_addr banned_ip;
 int banned = 0;
 char baddr[16];
 
-char network_interface_name[8]="eth0";
+char network_interface_name[16]="eth0";
 
 u_int32_t packet_xid=0;
 
