@@ -909,9 +909,9 @@ int add_dhcp_offer(struct in_addr source, dhcp_packet* offer_packet)
     }
 
     if (prometheus) {
-    fprintf(stdout, "dhcpdiscover_offer { ");
-    fprintf(stdout, "server=\"%s\", ", inet_ntoa(new_offer->server_address));
-    fprintf(stdout, "address=\"%s\", ", inet_ntoa(new_offer->offered_address));
+    fprintf(stdout, "dhcpdiscover_offer{ ");
+    fprintf(stdout, "server=\"%s\",", inet_ntoa(new_offer->server_address));
+    fprintf(stdout, "address=\"%s\",", inet_ntoa(new_offer->offered_address));
     fprintf(stdout, "dev=\"%s\" } 1\n", network_interface_name);
     }
 
