@@ -78,6 +78,7 @@ const char* email = "p4u@dabax.net";
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <time.h>
 
 #if defined(__linux__)
 
@@ -544,7 +545,6 @@ int get_dhcp_offer(int sock)
     dhcp_packet offer_packet;
     struct sockaddr_in source;
     int result = OK;
-    int timeout = 1;
     int responses = 0;
     int x;
     time_t start_time;
@@ -655,7 +655,6 @@ int get_dhcp_offer(int sock)
 /* sends a DHCP packet */
 int send_dhcp_packet(void* buffer, int buffer_size, int sock, struct sockaddr_in* dest)
 {
-    struct sockaddr_in myname;
     int result;
 
     result = sendto(sock, (char*)buffer, buffer_size, 0, (struct sockaddr*)dest, sizeof(*dest));
@@ -675,7 +674,6 @@ int receive_dhcp_packet(void* buffer, int buffer_size, int sock, int timeout, st
     struct timeval tv;
     fd_set readfds;
     int recv_result;
-    unsigned long srcmac;
     socklen_t address_size;
     struct sockaddr_in source_address;
 
@@ -1184,7 +1182,7 @@ int call_getopt(int argc, char** argv)
       break;
 
     default: /* help */
-      fprintf(stdout, "Unknown argument", optarg);
+      fprintf(stdout, "Unknown argument: %s", optarg);
       break;
         }
     }
