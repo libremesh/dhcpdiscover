@@ -205,6 +205,7 @@ typedef struct requested_server_struct {
 #define DHCP_OPTION_LEASE_TIME 51
 #define DHCP_OPTION_RENEWAL_TIME 58
 #define DHCP_OPTION_REBINDING_TIME 59
+#define DHCP_OPTION_END 255
 
 #define DHCP_INFINITE_TIME 0xFFFFFFFF
 
@@ -503,6 +504,9 @@ int send_dhcp_discover(int sock)
         discover_packet.options[7] = DHCP_OPTION_REQUESTED_ADDRESS;
         discover_packet.options[8] = '\x04';
         memcpy(&discover_packet.options[9], &requested_address, sizeof(requested_address));
+        discover_packet.options[10] = DHCP_OPTION_END;
+    } else {
+        discover_packet.options[7] = DHCP_OPTION_END;
     }
 
     /* send the DHCPDISCOVER packet to broadcast address */
